@@ -48,24 +48,12 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-/* Definitions for LEDTask */
-osThreadId_t LEDTaskHandle;
-const osThreadAttr_t LEDTask_attributes = {
-  .name = "LEDTask",
+/* Definitions for defaultTask */
+osThreadId_t defaultTaskHandle;
+const osThreadAttr_t defaultTask_attributes = {
+  .name = "defaultTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for KEYTask */
-osThreadId_t KEYTaskHandle;
-const osThreadAttr_t KEYTask_attributes = {
-  .name = "KEYTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for Event01 */
-osEventFlagsId_t Event01Handle;
-const osEventFlagsAttr_t Event01_attributes = {
-  .name = "Event01"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -73,22 +61,9 @@ const osEventFlagsAttr_t Event01_attributes = {
 
 /* USER CODE END FunctionPrototypes */
 
-void AppLEDTask(void *argument);
-void AppKEYTask(void *argument);
+void StartDefaultTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
-
-/* USER CODE BEGIN PREPOSTSLEEP */
-__weak void PreSleepProcessing(uint32_t *ulExpectedIdleTime)
-{
-/* place for user code */
-}
-
-__weak void PostSleepProcessing(uint32_t *ulExpectedIdleTime)
-{
-/* place for user code */
-}
-/* USER CODE END PREPOSTSLEEP */
 
 /**
   * @brief  FreeRTOS initialization
@@ -117,19 +92,12 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of LEDTask */
-  LEDTaskHandle = osThreadNew(AppLEDTask, NULL, &LEDTask_attributes);
-
-  /* creation of KEYTask */
-  KEYTaskHandle = osThreadNew(AppKEYTask, NULL, &KEYTask_attributes);
+  /* creation of defaultTask */
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
-  /* Create the event(s) */
-  /* creation of Event01 */
-  Event01Handle = osEventFlagsNew(&Event01_attributes);
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
@@ -137,41 +105,22 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_AppLEDTask */
+/* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the LEDTask thread.
+  * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_AppLEDTask */
-void AppLEDTask(void *argument)
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void *argument)
 {
-  /* USER CODE BEGIN AppLEDTask */
-  /* Infinite loop */
-  for(;;)
-  {
-
-    osDelay(1);
-  }
-  /* USER CODE END AppLEDTask */
-}
-
-/* USER CODE BEGIN Header_AppKEYTask */
-/**
-* @brief Function implementing the KEYTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_AppKEYTask */
-void AppKEYTask(void *argument)
-{
-  /* USER CODE BEGIN AppKEYTask */
+  /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END AppKEYTask */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* Private application code --------------------------------------------------*/
