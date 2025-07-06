@@ -150,6 +150,7 @@ void AppLEDTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  test
     osDelay(1);
   }
   /* USER CODE END AppLEDTask */
