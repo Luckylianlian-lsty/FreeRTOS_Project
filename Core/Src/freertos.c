@@ -48,12 +48,24 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
+/* Definitions for KEY1Task */
+osThreadId_t KEY1TaskHandle;
+const osThreadAttr_t KEY1Task_attributes = {
+  .name = "KEY1Task",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for LEDTask */
+osThreadId_t LEDTaskHandle;
+const osThreadAttr_t LEDTask_attributes = {
+  .name = "LEDTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Queue */
+osMessageQueueId_t QueueHandle;
+const osMessageQueueAttr_t Queue_attributes = {
+  .name = "Queue"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,7 +73,8 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
+void AppKEY1Task(void *argument);
+void AppLEDTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -87,13 +100,20 @@ void MX_FREERTOS_Init(void) {
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* creation of Queue */
+  QueueHandle = osMessageQueueNew (16, sizeof(uint16_t), &Queue_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  /* creation of KEY1Task */
+  KEY1TaskHandle = osThreadNew(AppKEY1Task, NULL, &KEY1Task_attributes);
+
+  /* creation of LEDTask */
+  LEDTaskHandle = osThreadNew(AppLEDTask, NULL, &LEDTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -105,22 +125,40 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_AppKEY1Task */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the KEY1Task thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_AppKEY1Task */
+void AppKEY1Task(void *argument)
 {
-  /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN AppKEY1Task */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartDefaultTask */
+  /* USER CODE END AppKEY1Task */
+}
+
+/* USER CODE BEGIN Header_AppLEDTask */
+/**
+* @brief Function implementing the LEDTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_AppLEDTask */
+void AppLEDTask(void *argument)
+{
+  /* USER CODE BEGIN AppLEDTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END AppLEDTask */
 }
 
 /* Private application code --------------------------------------------------*/
