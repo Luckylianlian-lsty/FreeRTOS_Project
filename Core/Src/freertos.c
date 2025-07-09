@@ -55,11 +55,11 @@ const osThreadAttr_t KEY1Task_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for LEDTask */
-osThreadId_t LEDTaskHandle;
-const osThreadAttr_t LEDTask_attributes = {
-  .name = "LEDTask",
-  .stack_size = 128 * 4,
+/* Definitions for UARTTask */
+osThreadId_t UARTTaskHandle;
+const osThreadAttr_t UARTTask_attributes = {
+  .name = "UARTTask",
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for Queue */
@@ -74,7 +74,7 @@ const osMessageQueueAttr_t Queue_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void AppKEY1Task(void *argument);
-void AppLEDTask(void *argument);
+void AppUARTTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -112,8 +112,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of KEY1Task */
   KEY1TaskHandle = osThreadNew(AppKEY1Task, NULL, &KEY1Task_attributes);
 
-  /* creation of LEDTask */
-  LEDTaskHandle = osThreadNew(AppLEDTask, NULL, &LEDTask_attributes);
+  /* creation of UARTTask */
+  UARTTaskHandle = osThreadNew(AppUARTTask, NULL, &UARTTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -138,27 +138,33 @@ void AppKEY1Task(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  if(HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)==GPIO_PIN_RESET)
+	  {
+		  uint16_t key1=1;
+		  xQueueSendToBack(QueueHandle,&key1,pdMS_TO_TICKS(100));
+		  vTaskDelay(pdMS_TO_TICKS(500));
+	  }
     osDelay(1);
   }
   /* USER CODE END AppKEY1Task */
 }
 
-/* USER CODE BEGIN Header_AppLEDTask */
+/* USER CODE BEGIN Header_AppUARTTask */
 /**
-* @brief Function implementing the LEDTask thread.
+* @brief Function implementing the UARTTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_AppLEDTask */
-void AppLEDTask(void *argument)
+/* USER CODE END Header_AppUARTTask */
+void AppUARTTask(void *argument)
 {
-  /* USER CODE BEGIN AppLEDTask */
+  /* USER CODE BEGIN AppUARTTask */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END AppLEDTask */
+  /* USER CODE END AppUARTTask */
 }
 
 /* Private application code --------------------------------------------------*/
