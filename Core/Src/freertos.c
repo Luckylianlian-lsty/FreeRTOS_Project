@@ -179,6 +179,19 @@ void AppUARTTask(void *argument)
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin==KEY2_Pin)
+	{
+		BaseType_t HigherPriorityTaskWoken=pdFALSE;
+		uint16_t key2=2;
+		xQueueSendToBackFromISR(QueueHandle,&key2,&HigherPriorityTaskWoken);
+		if(HigherPriorityTaskWoken==pdTRUE)
+		{
+			portYIELD_FROM_ISR(HigherPriorityTaskWoken);
+		}
+	}
 
+}
 /* USER CODE END Application */
 
