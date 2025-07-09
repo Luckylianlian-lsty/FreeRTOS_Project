@@ -27,6 +27,8 @@
 /* USER CODE BEGIN Includes */
 #include"event_groups.h"
 #include"queue.h"
+#include"stdio.h"
+#include"string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -162,6 +164,14 @@ void AppUARTTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	  uint16_t rxbuffer=0;
+	  char temp[50];
+	  if(xQueueReceive(QueueHandle, &rxbuffer, portMAX_DELAY)==pdPASS)
+	  {
+		  sprintf(temp,"接收data为：%d",rxbuffer);
+		  HAL_UART_Transmit(&huart2, (uint8_t*)temp, strlen(temp), 100);
+		  vTaskDelay(pdMS_TO_TICKS(100));
+	  }
     osDelay(1);
   }
   /* USER CODE END AppUARTTask */
