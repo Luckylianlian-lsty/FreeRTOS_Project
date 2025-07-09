@@ -1,1 +1,15 @@
 /Debug/
+/FreeRTOS_test.ioc
+
+Debug/
+Release/
+.settings/
+.cproject
+.project
+*.launch
+*.mxproject
+
+*.o
+*.hex
+*.bin
+*.elf
