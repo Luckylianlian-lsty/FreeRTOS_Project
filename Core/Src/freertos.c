@@ -96,7 +96,7 @@ void MX_FREERTOS_Init(void) {
 
 	/* Create the queue(s) */
 	/* creation of Queue */
-	QueueHandle = osMessageQueueNew(16, sizeof(uint16_t), &Queue_attributes);
+	QueueHandle = osMessageQueueNew(16, sizeof(uint8_t), &Queue_attributes);
 
 	/* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
@@ -128,28 +128,27 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_AppKEY1Task */
 void AppKEY1Task(void *argument) {
 	/* USER CODE BEGIN AppKEY1Task */
-	TickType_t lastPressTime = 0;
-	const TickType_t debounceTime = pdMS_TO_TICKS(50);  // 50ms消抖时间
+	uint8_t key_debounced = 0;
 	/* Infinite loop */
 	for (;;) {
 
+		// 检测按键按下（低电平）
 		if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
-			TickType_t currentTime = xTaskGetTickCount();
-
-			// 消抖检查
-			if ((currentTime - lastPressTime) > debounceTime) {
-				uint16_t key1 = 1;
-				xQueueSendToBack(QueueHandle, &key1, 0);
-				vTaskDelay(pdMS_TO_TICKS(500));
-				while (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)
+			if (!key_debounced)  // 首次检测到按下
+			{
+				vTaskDelay(pdMS_TO_TICKS(50));  // 消抖延迟
+				if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)
 						== GPIO_PIN_RESET) {
-					vTaskDelay(pdMS_TO_TICKS(10));
+					uint16_t key1 = 1;
+					xQueueSend(QueueHandle, &key1, pdMS_TO_TICKS(100));  // 发送数据
+					key_debounced = 1;  // 标记已处理
 				}
-				lastPressTime = currentTime;
 			}
-
+		} else {
+			key_debounced = 0;  // 按键释放，重置状态
 		}
-		vTaskDelay(10);
+		vTaskDelay(pdMS_TO_TICKS(10));  // 降低 CPU 占用
+
 	}
 	/* USER CODE END AppKEY1Task */
 }
@@ -165,18 +164,18 @@ void AppUARTTask(void *argument) {
 	/* USER CODE BEGIN AppUARTTask */
 	/* Infinite loop */
 	for (;;) {
-		uint16_t rxbuffer = 0;
+		uint8_t rxbuffer = 0;
 		char temp[50];
 		if (xQueueReceive(QueueHandle, &rxbuffer, portMAX_DELAY) == pdPASS) {
-			vTaskDelay(10);
+
 			// 在UART任务中添加队列状态检查
 			UBaseType_t messagesWaiting = uxQueueMessagesWaiting(QueueHandle);
-			sprintf(temp, "队列中等待的消息数: %d\n", messagesWaiting);
+			sprintf(temp, "队列中等待的消息数: %ld\n", messagesWaiting);
 			HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
 
-			sprintf(temp, "接收data为：%d\n", rxbuffer);
+			sprintf(temp, "接收到的data为: %d\n",rxbuffer);
 			HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
-			vTaskDelay(pdMS_TO_TICKS(100));
+
 		}
 		vTaskDelay(10);
 	}
