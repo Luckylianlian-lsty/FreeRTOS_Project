@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * File Name          : freertos.c
-  * Description        : Code for freertos applications
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * File Name          : freertos.c
+ * Description        : Code for freertos applications
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,23 +52,15 @@
 /* USER CODE END Variables */
 /* Definitions for KEY1Task */
 osThreadId_t KEY1TaskHandle;
-const osThreadAttr_t KEY1Task_attributes = {
-  .name = "KEY1Task",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
+const osThreadAttr_t KEY1Task_attributes = { .name = "KEY1Task", .stack_size =
+		128 * 4, .priority = (osPriority_t) osPriorityNormal, };
 /* Definitions for UARTTask */
 osThreadId_t UARTTaskHandle;
-const osThreadAttr_t UARTTask_attributes = {
-  .name = "UARTTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
+const osThreadAttr_t UARTTask_attributes = { .name = "UARTTask", .stack_size =
+		256 * 4, .priority = (osPriority_t) osPriorityLow, };
 /* Definitions for Queue */
 osMessageQueueId_t QueueHandle;
-const osMessageQueueAttr_t Queue_attributes = {
-  .name = "Queue"
-};
+const osMessageQueueAttr_t Queue_attributes = { .name = "Queue" };
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -81,113 +73,124 @@ void AppUARTTask(void *argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
 void MX_FREERTOS_Init(void) {
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
+	/* USER CODE BEGIN RTOS_MUTEX */
+	/* add mutexes, ... */
+	/* USER CODE END RTOS_MUTEX */
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
+	/* USER CODE BEGIN RTOS_SEMAPHORES */
+	/* add semaphores, ... */
+	/* USER CODE END RTOS_SEMAPHORES */
 
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
+	/* USER CODE BEGIN RTOS_TIMERS */
+	/* start timers, add new ones, ... */
+	/* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* creation of Queue */
-  QueueHandle = osMessageQueueNew (16, sizeof(uint16_t), &Queue_attributes);
+	/* Create the queue(s) */
+	/* creation of Queue */
+	QueueHandle = osMessageQueueNew(16, sizeof(uint16_t), &Queue_attributes);
 
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
+	/* USER CODE BEGIN RTOS_QUEUES */
+	/* add queues, ... */
+	/* USER CODE END RTOS_QUEUES */
 
-  /* Create the thread(s) */
-  /* creation of KEY1Task */
-  KEY1TaskHandle = osThreadNew(AppKEY1Task, NULL, &KEY1Task_attributes);
+	/* Create the thread(s) */
+	/* creation of KEY1Task */
+	KEY1TaskHandle = osThreadNew(AppKEY1Task, NULL, &KEY1Task_attributes);
 
-  /* creation of UARTTask */
-  UARTTaskHandle = osThreadNew(AppUARTTask, NULL, &UARTTask_attributes);
+	/* creation of UARTTask */
+	UARTTaskHandle = osThreadNew(AppUARTTask, NULL, &UARTTask_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
+	/* USER CODE BEGIN RTOS_THREADS */
+	/* add threads, ... */
+	/* USER CODE END RTOS_THREADS */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
+	/* USER CODE BEGIN RTOS_EVENTS */
+	/* add events, ... */
+	/* USER CODE END RTOS_EVENTS */
 
 }
 
 /* USER CODE BEGIN Header_AppKEY1Task */
 /**
-  * @brief  Function implementing the KEY1Task thread.
-  * @param  argument: Not used
-  * @retval None
-  */
+ * @brief  Function implementing the KEY1Task thread.
+ * @param  argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_AppKEY1Task */
-void AppKEY1Task(void *argument)
-{
-  /* USER CODE BEGIN AppKEY1Task */
-  /* Infinite loop */
-  for(;;)
-  {
-	  if(HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)==GPIO_PIN_RESET)
-	  {
-		  uint16_t key1=1;
-		  xQueueSendToBack(QueueHandle,&key1,pdMS_TO_TICKS(100));
-		  vTaskDelay(pdMS_TO_TICKS(500));
-	  }
-    osDelay(1);
-  }
-  /* USER CODE END AppKEY1Task */
+void AppKEY1Task(void *argument) {
+	/* USER CODE BEGIN AppKEY1Task */
+	TickType_t lastPressTime = 0;
+	const TickType_t debounceTime = pdMS_TO_TICKS(50);  // 50ms消抖时间
+	/* Infinite loop */
+	for (;;) {
+
+		if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
+			TickType_t currentTime = xTaskGetTickCount();
+
+			// 消抖检查
+			if ((currentTime - lastPressTime) > debounceTime) {
+				uint16_t key1 = 1;
+				xQueueSendToBack(QueueHandle, &key1, 0);
+				vTaskDelay(pdMS_TO_TICKS(500));
+				while (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)
+						== GPIO_PIN_RESET) {
+					vTaskDelay(pdMS_TO_TICKS(10));
+				}
+				lastPressTime = currentTime;
+			}
+
+		}
+		vTaskDelay(10);
+	}
+	/* USER CODE END AppKEY1Task */
 }
 
 /* USER CODE BEGIN Header_AppUARTTask */
 /**
-* @brief Function implementing the UARTTask thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the UARTTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_AppUARTTask */
-void AppUARTTask(void *argument)
-{
-  /* USER CODE BEGIN AppUARTTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	  uint16_t rxbuffer=0;
-	  char temp[50];
-	  if(xQueueReceive(QueueHandle, &rxbuffer, portMAX_DELAY)==pdPASS)
-	  {
-		  sprintf(temp,"接收data为：%d",rxbuffer);
-		  HAL_UART_Transmit(&huart2, (uint8_t*)temp, strlen(temp), 100);
-		  vTaskDelay(pdMS_TO_TICKS(100));
-	  }
-    osDelay(1);
-  }
-  /* USER CODE END AppUARTTask */
+void AppUARTTask(void *argument) {
+	/* USER CODE BEGIN AppUARTTask */
+	/* Infinite loop */
+	for (;;) {
+		uint16_t rxbuffer = 0;
+		char temp[50];
+		if (xQueueReceive(QueueHandle, &rxbuffer, portMAX_DELAY) == pdPASS) {
+			vTaskDelay(10);
+			// 在UART任务中添加队列状态检查
+			UBaseType_t messagesWaiting = uxQueueMessagesWaiting(QueueHandle);
+			sprintf(temp, "队列中等待的消息数: %d\n", messagesWaiting);
+			HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
+
+			sprintf(temp, "接收data为：%d\n", rxbuffer);
+			HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
+			vTaskDelay(pdMS_TO_TICKS(100));
+		}
+		vTaskDelay(10);
+	}
+	/* USER CODE END AppUARTTask */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if(GPIO_Pin==KEY2_Pin)
-	{
-		BaseType_t HigherPriorityTaskWoken=pdFALSE;
-		uint16_t key2=2;
-		xQueueSendToBackFromISR(QueueHandle,&key2,&HigherPriorityTaskWoken);
-		if(HigherPriorityTaskWoken==pdTRUE)
-		{
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == KEY2_Pin) {
+		BaseType_t HigherPriorityTaskWoken = pdFALSE;
+		uint16_t key2 = 2;
+		xQueueSendToBackFromISR(QueueHandle, &key2, &HigherPriorityTaskWoken);
+		if (HigherPriorityTaskWoken == pdTRUE) {
 			portYIELD_FROM_ISR(HigherPriorityTaskWoken);
 		}
 	}
