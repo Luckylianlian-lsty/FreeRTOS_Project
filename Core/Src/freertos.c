@@ -130,7 +130,7 @@ void AppUARTTask(void *argument) {
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		char temp[20] = { };
 		xStreamBufferReceive(StreamBufferHandle, temp, 20, portMAX_DELAY);
-		HAL_UART_Transmit(&huart2, (uint8_t*)temp, strlen(temp), 100);
+		HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
 		vTaskDelay(200);
 	}
 	/* USER CODE END AppUARTTask */
@@ -150,9 +150,8 @@ void KeyTaskApp(void *argument) {
 		if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
 			vTaskDelay(10);
 			if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
-				uint8_t len=xStreamBufferBytesAvailable(StreamBufferHandle);
-				if(len>0)
-				{
+				uint8_t len = xStreamBufferBytesAvailable(StreamBufferHandle);
+				if (len > 0) {
 					xTaskNotifyGive(UARTTaskHandle);
 				}
 
@@ -165,7 +164,22 @@ void KeyTaskApp(void *argument) {
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//	if (huart->Instance == huart2.Instance) {
+//
+//		BaseType_t HigherPriorityTaskWoken = pdFALSE;
+//		if (StreamBufferHandle != NULL) {
+//			xStreamBufferSendFromISR(StreamBufferHandle, rxbuffer, 50,
+//					&HigherPriorityTaskWoken);
+//			portYIELD_FROM_ISR(HigherPriorityTaskWoken);
+//
+//		}
+//		HAL_UART_Receive_IT(huart, rxbuffer, 4);
+//
+//	}
+//}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 	if (huart->Instance == huart2.Instance) {
 
 		BaseType_t HigherPriorityTaskWoken = pdFALSE;
@@ -175,7 +189,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			portYIELD_FROM_ISR(HigherPriorityTaskWoken);
 
 		}
-		HAL_UART_Receive_IT(huart, rxbuffer, 4);
+		HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxbuffer, 20);
 
 	}
 }

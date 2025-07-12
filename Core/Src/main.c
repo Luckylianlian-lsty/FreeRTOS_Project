@@ -91,7 +91,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Receive_IT(&huart2, rxbuffer, 4);
+//  HAL_UART_Receive_IT(&huart2, rxbuffer, 4);
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxbuffer, 20);
   /* USER CODE END 2 */
 
   /* Init scheduler */
