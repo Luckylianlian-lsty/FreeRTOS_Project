@@ -130,7 +130,9 @@ void AppUARTTask(void *argument) {
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		char temp[20] = { };
 		xStreamBufferReceive(StreamBufferHandle, temp, 20, portMAX_DELAY);
+
 		HAL_UART_Transmit(&huart2, (uint8_t*) temp, strlen(temp), 100);
+		xStreamBufferReset(StreamBufferHandle);
 		vTaskDelay(200);
 	}
 	/* USER CODE END AppUARTTask */
@@ -189,6 +191,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 			portYIELD_FROM_ISR(HigherPriorityTaskWoken);
 
 		}
+		memset(rxbuffer, 0, 50);//清空后再接收，以免数据残留
 		HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxbuffer, 20);
 
 	}
